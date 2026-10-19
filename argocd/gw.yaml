@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gw                        # Cũng là tên release, nên vẫn ra gw-router, gw-redis
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ducthangng/mlops-router-gitops
+    targetRevision: main          # follow main
+    path: charts/router           # charts
+  destination:
+    server: https://kubernetes.default.svc   # current cluster 
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true                 # Bản vẽ xoá cái gì thì cluster xoá theo
+      selfHeal: true              # Ai sửa tay trên cluster thì sửa lại cho đúng bản vẽ
