@@ -1,0 +1,5 @@
+apiVersion: v2
+name: router
+description: Semantic router for the AI gateway
+version: 0.1.0      # Phiên bản của khuôn
+appVersion: "0.3"   # Phiên bản của app nằm bên trong
