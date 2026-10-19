@@ -1,6 +1,6 @@
 replicaCount: 3
 image:
-  repository: ghcr.io/<username>/router
+  repository: ghcr.io/ducthangng/router
   tag: "0.3"
   pullPolicy: IfNotPresent
 strategy: max
