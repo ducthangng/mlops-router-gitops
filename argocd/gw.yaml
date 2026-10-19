@@ -14,5 +14,6 @@ spec:
     namespace: default
   syncPolicy:
     automated:
+      enabled: true
       prune: true                 # Bản vẽ xoá cái gì thì cluster xoá theo
       selfHeal: true              # Ai sửa tay trên cluster thì sửa lại cho đúng bản vẽ
