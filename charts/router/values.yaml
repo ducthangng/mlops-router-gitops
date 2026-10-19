@@ -1,4 +1,4 @@
-replicaCount: 2
+replicaCount: 3
 image:
   repository: router
   tag: "0.3"
@@ -9,6 +9,6 @@ resources:
   requests: { cpu: 250m, memory: 512Mi }
   limits:   { cpu: "1", memory: 1Gi }
 redis:
-  enabled: false
+  enabled: true
   image: redis:7-alpine
   maxmemory: 64mb
