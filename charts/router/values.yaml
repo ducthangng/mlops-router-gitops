@@ -1,6 +1,6 @@
 replicaCount: 3
 image:
-  repository: router
+  repository: ghcr.io/<username>/router
   tag: "0.3"
   pullPolicy: IfNotPresent
 strategy: max
