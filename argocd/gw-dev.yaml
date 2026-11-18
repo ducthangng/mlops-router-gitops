@@ -1,0 +1,24 @@
+# One ArgoCD Application per environment. Same chart, different values file + namespace.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gw-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ducthangng/mlops-router-gitops
+    targetRevision: main
+    path: charts/router
+    helm:
+      releaseName: gw              # resources are gw-router, gw-redis, gw-mock-llm in every env
+      valueFiles: [values-dev.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: router-dev
+  syncPolicy:
+    automated:
+      enabled: true                # written explicitly: a UI rollback turns auto-sync off (lesson 4)
+      prune: true                  # removed from Git -> removed from the cluster
+      selfHeal: true               # manual kubectl edits are reverted
+    syncOptions: [CreateNamespace=true]

@@ -2,26 +2,50 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-router
+  labels: {{- include "router.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels: { app: {{ .Release.Name }}-router }
   template:
     metadata:
-      labels: { app: {{ .Release.Name }}-router }
+      labels:
+        app: {{ .Release.Name }}-router
+        {{- include "router.labels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: router
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: STRATEGY
-              value: {{ .Values.strategy | quote }}
-            - name: CACHE_TTL
-              value: {{ .Values.cacheTTL | quote }}
+            - { name: CLASSIFIER, value: {{ .Values.gateway.classifier | quote }} }
+            - { name: CACHE_TTL, value: {{ .Values.gateway.cacheTTL | quote }} }
+            - { name: REDIS_TIMEOUT_S, value: {{ .Values.gateway.redisTimeoutS | quote }} }
             {{- if .Values.redis.enabled }}
-            - name: REDIS_URL
-              value: "redis://{{ .Release.Name }}-redis:6379/0"
+            - { name: REDIS_URL, value: "redis://{{ .Release.Name }}-redis:6379/0" }
+            {{- end }}
+            - { name: SEMANTIC_CACHE_ENABLED, value: {{ .Values.gateway.semanticCache.enabled | quote }} }
+            - { name: SEMANTIC_CACHE_THRESHOLD, value: {{ .Values.gateway.semanticCache.threshold | quote }} }
+            - { name: SEMANTIC_BACKEND, value: {{ .Values.gateway.semanticCache.backend | quote }} }
+            - { name: SEMANTIC_MAX_ENTRIES, value: {{ .Values.gateway.semanticCache.maxEntries | quote }} }
+            - { name: RATE_LIMIT_RATE, value: {{ .Values.gateway.rateLimit.rate | quote }} }
+            - { name: RATE_LIMIT_BURST, value: {{ .Values.gateway.rateLimit.burst | quote }} }
+            - { name: RATE_LIMIT_FAIL_MODE, value: {{ .Values.gateway.rateLimit.failMode | quote }} }
+            - { name: RATE_LIMIT_CLIENTS, value: {{ .Values.gateway.rateLimit.clients | quote }} }
+            - { name: UPSTREAM_BASE_URL, value: {{ include "router.upstreamUrl" . | quote }} }
+            - { name: UPSTREAM_TIMEOUT_S, value: {{ .Values.gateway.upstream.timeoutS | quote }} }
+            - { name: UPSTREAM_RETRIES, value: {{ .Values.gateway.upstream.retries | quote }} }
+            - { name: FALLBACK_MODEL, value: {{ .Values.gateway.upstream.fallbackModel | quote }} }
+            - { name: HEALTHZ_FAIL, value: {{ .Values.gateway.healthzFail | quote }} }
+            {{- with .Values.gateway.extraEnv }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
             - containerPort: 8000

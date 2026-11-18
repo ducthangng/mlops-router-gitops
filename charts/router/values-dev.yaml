@@ -1,0 +1,8 @@
+# dev: Jenkins bumps image.tag on every green build of main. Do not edit the tag by hand.
+image:
+  tag: "0.3"
+replicaCount: 1
+gateway:
+  rateLimit: { rate: 5, burst: 10 }
+mockLlm:
+  latencyMs: 200

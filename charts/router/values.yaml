@@ -1,14 +1,55 @@
-replicaCount: 3
+# Shared defaults. Per-environment overrides live in values-dev.yaml / values-prod.yaml
+# (ArgoCD apps argocd/gw-dev.yaml and argocd/gw-prod.yaml pick one of them).
+replicaCount: 2
 image:
   repository: ghcr.io/ducthangng/router
-  tag: "0.3"
+  tag: "set-per-env"           # overridden in values-<env>.yaml
   pullPolicy: IfNotPresent
-strategy: max
-cacheTTL: 3600
-resources:
-  requests: { cpu: 250m, memory: 512Mi }
-  limits:   { cpu: "1", memory: 1Gi }
+imagePullSecrets: []           # [{name: ghcr-pull}] if the GHCR package is private (bootstrap creates it)
+
+resources:                     # no PyTorch any more: ~60 MiB RSS at idle
+  requests: { cpu: 50m, memory: 96Mi }
+  limits:   { cpu: "1", memory: 256Mi }
+
+gateway:
+  classifier: rules            # rules | minilm (minilm needs an image built with the extra)
+  cacheTTL: 3600
+  redisTimeoutS: 0.05          # one short timeout, then fail-open
+  semanticCache:
+    enabled: true
+    threshold: 0.90            # tau, chosen from evals/semantic_eval.py (see README Results)
+    backend: auto              # auto | redisearch | numpy
+    maxEntries: 500
+  rateLimit:
+    rate: 5                    # tokens per second per X-API-Key
+    burst: 10
+    failMode: open             # open | closed
+    clients: ""                # per-client overrides "key=rate:burst,key2=rate:burst"
+  upstream:
+    baseUrl: ""                # empty + mockLlm.enabled -> http://<release>-mock-llm/v1
+    timeoutS: 10
+    retries: 2
+    fallbackModel: small-chat
+  healthzFail: false           # drills only: makes /healthz return 500
+  extraEnv: []
+
+mockLlm:
+  enabled: true
+  replicaCount: 1
+  latencyMs: 200
+  jitterMs: 50
+  errorRate: 0
+  errorStatus: 500
+  errorModels: ""
+  completionTokens: 64
+  resources:
+    requests: { cpu: 20m, memory: 64Mi }
+    limits:   { memory: 192Mi }
+
 redis:
   enabled: true
-  image: redis:7-alpine
+  image: redis:8.10.3-alpine   # Redis 8 ships the query engine -> vector search for the semantic cache
   maxmemory: 64mb
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { memory: 128Mi }

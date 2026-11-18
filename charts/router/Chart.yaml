@@ -1,5 +1,5 @@
 apiVersion: v2
 name: router
-description: Semantic router for the AI gateway
-version: 0.1.0      # Phiên bản của khuôn
-appVersion: "0.3"   # Phiên bản của app nằm bên trong
+description: AI gateway (rule router + Redis exact/semantic cache + rate limits) with Redis and a mock LLM
+version: 0.2.0      # chart version (the mould)
+appVersion: "2.0"   # app API version; the image tag is set per environment
