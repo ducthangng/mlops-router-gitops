@@ -1,0 +1,20 @@
+# Applied as ConfigMap "jenkins-casc-ci" (label jenkins-jenkins-config=true) by
+# scripts/jenkins-configure.sh in the app repo. The chart's config-reload sidecar
+# watches that label, writes the file next to the chart's own JCasC and POSTs a reload.
+# No `helm upgrade`, no plugin changes.
+#
+# NOT repeated here (already in the chart's jcasc-default-config.yaml, and JCasC fails on
+# conflicting keys across files): numExecutors: 0, kubernetes cloud, security realm.
+# Credentials are NOT here: JCasC can only read secrets mounted into the controller, which
+# needs a StatefulSet change (= helm upgrade). The script syncs them from k8s Secrets via REST.
+jenkins:
+  systemMessage: "Configured as code from mlops-router-gitops/jenkins/. Changes made in the UI are overwritten."
+  quietPeriod: 0
+  scmCheckoutRetryCount: 2
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: REGISTRY
+            value: ghcr.io/ducthangng
+          - key: GITOPS_REPO
+            value: github.com/ducthangng/mlops-router-gitops.git
