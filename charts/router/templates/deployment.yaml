@@ -43,6 +43,12 @@ spec:
             - { name: UPSTREAM_TIMEOUT_S, value: {{ .Values.gateway.upstream.timeoutS | quote }} }
             - { name: UPSTREAM_RETRIES, value: {{ .Values.gateway.upstream.retries | quote }} }
             - { name: FALLBACK_MODEL, value: {{ .Values.gateway.upstream.fallbackModel | quote }} }
+            - { name: MODEL_MAP, value: {{ .Values.gateway.upstream.modelMap | quote }} }
+            {{- with .Values.gateway.upstream.apiKeySecret }}
+            - name: UPSTREAM_API_KEY
+              valueFrom:
+                secretKeyRef: { name: {{ . | quote }}, key: api-key, optional: true }
+            {{- end }}
             - { name: HEALTHZ_FAIL, value: {{ .Values.gateway.healthzFail | quote }} }
             {{- with .Values.gateway.extraEnv }}
             {{- toYaml . | nindent 12 }}

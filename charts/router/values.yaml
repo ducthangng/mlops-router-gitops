@@ -30,6 +30,8 @@ gateway:
     timeoutS: 10
     retries: 2
     fallbackModel: small-chat
+    modelMap: ""               # logical route model -> provider id, "small-chat=gpt-4o-mini,coder=gpt-4.1"
+    apiKeySecret: llm-upstream # Secret (key api-key) made by `make llm-key` from .env; optional, never in Git
   healthzFail: false           # drills only: makes /healthz return 500
   extraEnv: []
 

@@ -4,5 +4,9 @@ image:
 replicaCount: 1
 gateway:
   rateLimit: { rate: 5, burst: 10 }
+  upstream:                    # real provider; key from Secret llm-upstream (`make llm-key`)
+    baseUrl: https://api.openai.com/v1
+    timeoutS: 30
+    modelMap: "small-chat=gpt-4o-mini,coder=gpt-4.1-mini,reasoner=gpt-4.1"
 mockLlm:
-  latencyMs: 200
+  enabled: false
