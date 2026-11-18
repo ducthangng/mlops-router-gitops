@@ -69,17 +69,17 @@ flowchart LR
     ci -->|push image| ghcr[("ghcr.io<br/>ai-gateway:&lt;sha&gt;")]
     ci -->|commit tag| vd["values-dev.yaml"]
     vd --> argo["ArgoCD deploys<br/>to gateway-dev"]
-    qualify["Job: qualify<br/>golden regression"] -.tests release candidate.-> ghcr
+    qualify["Job: qualify<br/>release check"] -.tests release candidate.-> ghcr
 ```
 
 | Path | Purpose |
 |---|---|
 | `jobs/ai-gateway.xml` | Multibranch CI. Every branch is tested; only `main` pushes an image and bumps the tag |
-| `jobs/qualify.xml` | Release qualification (contract, routing, cache, load). `SCENARIO=clean\|bad\|partial` |
+| `jobs/qualify.xml` | Release check (`gateway/release_check/` in the product): 2 checks, PASS/FAIL |
 | `jobs/credential.xml.tpl` | Template for the GitHub credential, synced from a k8s Secret |
 | `casc/` | Jenkins Configuration as Code, applied as a ConfigMap and hot-reloaded |
 | `values.yaml` | Helm values for a **fresh** Jenkins install only (the running one is never upgraded) |
-| `qualify-cache-pvc.yaml` | Volume that caches `qualify` stage results between runs |
+| `qualify-cache-pvc.yaml` | Volume the old release check used as a cache. Not used by the current 2-check version; kept so nothing in the cluster changes |
 
 ---
 

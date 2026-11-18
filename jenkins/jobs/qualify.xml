@@ -1,9 +1,9 @@
 <?xml version='1.1' encoding='UTF-8'?>
-<!-- Release qualification: golden regression of an AI gateway release candidate (gateway/qualify/Jenkinsfile in custom-ai-gateway). -->
+<!-- Release check: 2 simple checks on the AI gateway's routes.yaml (gateway/release_check/Jenkinsfile in custom-ai-gateway). -->
 <flow-definition plugin="workflow-job">
   <!--  Change the display name here -->
   <displayName>periodic_status_checking</displayName>
-  <description>Golden regression qualification: config_lint, contract, routing, cache, load. Parameter SCENARIO=clean|bad|partial.</description>
+  <description>Release check: models_exist (every model in routes.yaml is in catalog.yaml), routes_unchanged (100 saved prompts keep their route).</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <!-- How long does the build last -->
@@ -15,19 +15,6 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-
-    <!-- Defining the parameters status for the test -->
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>SCENARIO</name>
-          <description>clean = release candidate as-is; bad / partial = injected regressions (gateway/qualify/scenarios/)</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array"><string>clean</string><string>bad</string><string>partial</string></a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
 
     <!-- Every 2 min, check if new version, if yes then build -->
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
@@ -59,7 +46,7 @@
     </scm>
 
     <!-- Name of the build -->
-    <scriptPath>gateway/qualify/Jenkinsfile</scriptPath>
+    <scriptPath>gateway/release_check/Jenkinsfile</scriptPath>
     <lightweight>true</lightweight>
   </definition>
 
