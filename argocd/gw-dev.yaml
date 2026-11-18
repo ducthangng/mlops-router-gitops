@@ -9,13 +9,13 @@ spec:
   source:
     repoURL: https://github.com/ducthangng/mlops-router-gitops
     targetRevision: main
-    path: charts/router
+    path: charts/ai-gateway
     helm:
-      releaseName: gw              # resources are gw-router, gw-redis, gw-mock-llm in every env
+      releaseName: gw              # resources are gw-gateway, gw-postgres, gw-redis in every env
       valueFiles: [values-dev.yaml]
   destination:
     server: https://kubernetes.default.svc
-    namespace: router-dev
+    namespace: gateway-dev
   syncPolicy:
     automated:
       enabled: true                # written explicitly: a UI rollback turns auto-sync off (lesson 4)

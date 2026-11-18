@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-redis
-  labels: {{- include "router.labels" . | nindent 4 }}
+  labels: {{- include "gw.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -12,12 +12,12 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-redis
-        {{- include "router.labels" . | nindent 8 }}
+        {{- include "gw.labels" . | nindent 8 }}
     spec:
       containers:
         - name: redis
           image: {{ .Values.redis.image }}
-          # --save "": RAM only. It is a cache; losing it on restart is fine (the gateway fails open).
+          # --save "": RAM only. Exact-match answer cache; losing it on restart is fine (the gateway fails open).
           args: ["--maxmemory", {{ .Values.redis.maxmemory | quote }}, "--maxmemory-policy", "allkeys-lru", "--save", ""]
           ports:
             - containerPort: 6379
@@ -31,7 +31,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-redis
-  labels: {{- include "router.labels" . | nindent 4 }}
+  labels: {{- include "gw.labels" . | nindent 4 }}
 spec:
   selector: { app: {{ .Release.Name }}-redis }
   ports:

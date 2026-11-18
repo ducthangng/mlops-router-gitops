@@ -1,5 +1,0 @@
-apiVersion: v2
-name: router
-description: AI gateway (rule router + Redis exact/semantic cache + rate limits) with Redis and a mock LLM
-version: 0.2.0      # chart version (the mould)
-appVersion: "2.0"   # app API version; the image tag is set per environment

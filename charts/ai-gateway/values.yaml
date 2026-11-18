@@ -1,0 +1,43 @@
+# Shared defaults. Per-environment overrides live in values-dev.yaml / values-prod.yaml
+# (ArgoCD apps argocd/gw-dev.yaml and argocd/gw-prod.yaml pick one of them).
+replicaCount: 2
+image:
+  repository: ghcr.io/ducthangng/ai-gateway
+  tag: "set-per-env"           # overridden in values-<env>.yaml
+  pullPolicy: IfNotPresent
+# GHCR packages are private by default; Secret ghcr-pull is made by `make up` in every gateway-* namespace.
+imagePullSecrets: [{ name: ghcr-pull }]
+
+resources:
+  requests: { cpu: 50m, memory: 128Mi }
+  limits:   { cpu: "1", memory: 512Mi }
+probePath: /api/healthz        # drill 14 points it at a path that 404s
+
+providerKeysSecret: llm-providers   # optional Secret with ANTHROPIC_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY
+
+gateway:
+  router:
+    enabled: true              # JJ: gateway.plugins.rules_router (routes.yaml baked into the image)
+    timeoutS: 2.0              # slower -> the user's own settings are used
+  cache:
+    ttlS: 3600
+    timeoutS: 0.05             # one short timeout, then a miss (fail-open)
+  extraEnv: []
+
+postgres:
+  image: postgres:17-alpine
+  user: gateway
+  database: gateway
+  passwordSecret: postgres-auth
+  storage: 1Gi
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { memory: 256Mi }
+
+redis:
+  enabled: true
+  image: redis:8.10.3-alpine
+  maxmemory: 64mb
+  resources:
+    requests: { cpu: 50m, memory: 32Mi }
+    limits:   { memory: 128Mi }

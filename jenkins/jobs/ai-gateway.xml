@@ -3,7 +3,7 @@
      (`when { branch 'main' }` needs BRANCH_NAME, which only multibranch jobs set).
      Branch indexing every 2 minutes is the multibranch form of pollSCM H/2 (no public webhook). -->
 <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch">
-  <description>Gateway CI: lint, unit, integration, coverage + eval gates, Kaniko build; main only: push + bump GitOps</description>
+  <description>AI gateway CI (custom-ai-gateway): lint, unit, integration, coverage + routing eval gates, Kaniko build; main only: push + bump GitOps</description>
   <properties/>
   <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder">
     <pruneDeadBranches>true</pruneDeadBranches>
@@ -22,7 +22,7 @@
     <data>
       <jenkins.branch.BranchSource>
         <source class="jenkins.plugins.git.GitSCMSource" plugin="git">
-          <id>router-app</id>
+          <id>ai-gateway-app</id>
           <remote>@@APP_REPO_URL@@</remote>
           <credentialsId>@@CREDENTIALS_ID@@</credentialsId>
           <traits>

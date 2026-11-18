@@ -1,9 +1,7 @@
 # prod: image.tag changes only by promotion (`make promote` = a reviewed Git commit), never by CI.
 image:
-  tag: "0.3"
+  tag: "none-yet"
 replicaCount: 2
-gateway:
-  rateLimit: { rate: 20, burst: 40 }
 redis:
   maxmemory: 128mb
   resources:

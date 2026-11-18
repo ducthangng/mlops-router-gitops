@@ -1,0 +1,4 @@
+# dev: Jenkins bumps image.tag on every green build of main. Do not edit the tag by hand.
+image:
+  tag: "none-yet"
+replicaCount: 1

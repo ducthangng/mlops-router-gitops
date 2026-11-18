@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ai-gateway
+description: AI gateway product (chat UI + API, JJ rules router, Redis exact cache, Postgres history)
+version: 0.1.0      # chart version (the mould)
+appVersion: "1.0"   # the image tag is set per environment by CI (dev) or promotion (prod)

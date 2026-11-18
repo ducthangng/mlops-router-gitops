@@ -1,5 +1,5 @@
 <?xml version='1.1' encoding='UTF-8'?>
-<!-- Release qualification: golden regression of a gateway release candidate (qualify/Jenkinsfile). -->
+<!-- Release qualification: golden regression of an AI gateway release candidate (gateway/qualify/Jenkinsfile in custom-ai-gateway). -->
 <flow-definition plugin="workflow-job">
   <!--  Change the display name here -->
   <displayName>periodic_status_checking</displayName>
@@ -21,7 +21,7 @@
       <parameterDefinitions>
         <hudson.model.ChoiceParameterDefinition>
           <name>SCENARIO</name>
-          <description>clean = release candidate as-is; bad / partial = injected regressions (qualify/scenarios/)</description>
+          <description>clean = release candidate as-is; bad / partial = injected regressions (gateway/qualify/scenarios/)</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array"><string>clean</string><string>bad</string><string>partial</string></a>
           </choices>
@@ -59,7 +59,7 @@
     </scm>
 
     <!-- Name of the build -->
-    <scriptPath>qualify/Jenkinsfile</scriptPath>
+    <scriptPath>gateway/qualify/Jenkinsfile</scriptPath>
     <lightweight>true</lightweight>
   </definition>
 

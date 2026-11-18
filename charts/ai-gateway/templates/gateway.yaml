@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gateway
+  labels: {{- include "gw.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: { app: {{ .Release.Name }}-gateway }
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-gateway
+        {{- include "gw.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-postgres          # the gateway creates its tables at startup
+          image: {{ .Values.postgres.image }}
+          command: ["sh", "-c", "until pg_isready -h {{ .Release.Name }}-postgres -U {{ .Values.postgres.user }}; do sleep 1; done"]
+          resources: { requests: { cpu: 10m, memory: 16Mi }, limits: { memory: 64Mi } }
+      containers:
+        - name: gateway
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            # ANTHROPIC_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY, made by `make llm-key` from .env.
+            # Optional: without it only the offline mock provider is available.
+            - secretRef: { name: {{ .Values.providerKeysSecret }}, optional: true }
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ .Values.postgres.passwordSecret }}, key: password } }
+            - { name: GATEWAY_DATABASE_URL, value: "postgresql+asyncpg://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@{{ .Release.Name }}-postgres:5432/{{ .Values.postgres.database }}" }
+            {{- if .Values.gateway.router.enabled }}
+            - { name: GATEWAY_ROUTER_CLASS, value: "gateway.plugins.rules_router:RulesRouter" }
+            - { name: GATEWAY_ROUTER_TIMEOUT_S, value: {{ .Values.gateway.router.timeoutS | quote }} }
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - { name: GATEWAY_CACHE_CLASS, value: "gateway.plugins.redis_cache:RedisCache" }
+            - { name: GATEWAY_REDIS_URL, value: "redis://{{ .Release.Name }}-redis:6379/0" }
+            {{- end }}
+            - { name: GATEWAY_CACHE_TTL_S, value: {{ .Values.gateway.cache.ttlS | quote }} }
+            - { name: GATEWAY_CACHE_TIMEOUT_S, value: {{ .Values.gateway.cache.timeoutS | quote }} }
+            - { name: GATEWAY_CORS_ORIGINS, value: '[]' }        # UI is served by the gateway itself
+            {{- with .Values.gateway.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - containerPort: 8090
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet: { path: {{ .Values.probePath }}, port: 8090 }
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet: { path: {{ .Values.probePath }}, port: 8090 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: {{ .Values.probePath }}, port: 8090 }
+            periodSeconds: 10
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-gateway
+  labels: {{- include "gw.labels" . | nindent 4 }}
+spec:
+  selector: { app: {{ .Release.Name }}-gateway }
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8090
