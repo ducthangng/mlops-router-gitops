@@ -1,0 +1,12 @@
+# Persistent stage cache for the `qualify` job: a stage whose inputs did not change is skipped
+# and its last passing summary reused. Agent pods are ephemeral, so the cache needs a volume.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qualify-cache
+  namespace: jenkins
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 100Mi
