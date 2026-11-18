@@ -1,9 +1,12 @@
 <?xml version='1.1' encoding='UTF-8'?>
 <!-- Release qualification: golden regression of a gateway release candidate (qualify/Jenkinsfile). -->
 <flow-definition plugin="workflow-job">
+  <!--  Change the display name here -->
+  <displayName>periodic_status_checking</displayName>
   <description>Golden regression qualification: config_lint, contract, routing, cache, load. Parameter SCENARIO=clean|bad|partial.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <!-- How long does the build last -->
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
         <daysToKeep>-1</daysToKeep>
@@ -12,6 +15,8 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
+
+    <!-- Defining the parameters status for the test -->
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.ChoiceParameterDefinition>
@@ -23,6 +28,8 @@
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+
+    <!-- Every 2 min, check if new version, if yes then build -->
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <hudson.triggers.SCMTrigger>
@@ -32,6 +39,8 @@
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
+
+  
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps">
     <scm class="hudson.plugins.git.GitSCM" plugin="git">
       <configVersion>2</configVersion>
@@ -48,9 +57,13 @@
       <submoduleCfg class="empty-list"/>
       <extensions/>
     </scm>
+
+    <!-- Name of the build -->
     <scriptPath>qualify/Jenkinsfile</scriptPath>
     <lightweight>true</lightweight>
   </definition>
+
+  
   <triggers/>
   <disabled>false</disabled>
 </flow-definition>
