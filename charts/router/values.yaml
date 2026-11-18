@@ -17,7 +17,7 @@ gateway:
   redisTimeoutS: 0.05          # one short timeout, then fail-open
   semanticCache:
     enabled: true
-    threshold: 0.90            # tau, chosen from evals/semantic_eval.py (see README Results)
+    threshold: 0.95            # tau: lowest value with 0 false hits in evals/semantic_eval.py (hashing embedder)
     backend: auto              # auto | redisearch | numpy
     maxEntries: 500
   rateLimit:
