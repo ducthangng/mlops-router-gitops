@@ -1,6 +1,6 @@
 # prod: image.tag changes only by promotion (`make promote` = a reviewed Git commit), never by CI.
 image:
-  tag: "none-yet"
+  tag: "79a6e7c"
 replicaCount: 2
 redis:
   maxmemory: 128mb
